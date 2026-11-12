@@ -140,6 +140,13 @@
     .info ul.lista { margin: 0 }
     .info ul.lista li { justify-content: flex-start; gap: 8px; border: 0; padding: 5px 0 }
 
+    .pix-box { margin-top: 14px; border-top: 1px dashed var(--line); padding-top: 14px }
+    .pix-box .pix-tit { font-weight: 700; color: var(--ink); margin: 0 0 6px }
+    .pix-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap }
+    .pix-key { flex: 1; min-width: 0; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-weight: 700; color: var(--accent); word-break: break-all }
+    .pix-copy { border: 0; border-radius: 10px; background: var(--accent); color: var(--onaccent); font: 700 14px inherit; padding: 10px 16px; cursor: pointer; white-space: nowrap }
+    .pix-nome { color: var(--muted); font-size: 13px; margin: 8px 0 0 }
+
     .bar { position: fixed; left: 0; right: 0; bottom: 0; padding: 12px 18px calc(12px + env(safe-area-inset-bottom, 0px)); background: var(--bg); border-top: 1px solid var(--line); display: flex; justify-content: center; z-index: 10 }
     .bar button { width: 100%; max-width: 584px; border: 0; border-radius: 999px; background: var(--accent); color: var(--onaccent); font: 700 17px inherit; padding: 14px; cursor: pointer }
     .bar button:disabled { opacity: .55; cursor: default }
@@ -158,7 +165,10 @@
     .ci .nome { flex: 1 }
     .drawer-dados { padding: 6px 20px 2px }
     .drawer-dados label { display: block; font-weight: 700; font-size: 13px; margin: 10px 0 4px; color: var(--ink) }
-    .drawer-dados input { width: 100%; border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--ink); font: 500 15px inherit; padding: 11px }
+    .drawer-dados input, .drawer-dados select { width: 100%; border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--ink); font: 500 15px inherit; padding: 11px }
+    .pix-aviso { display: none; margin-top: 10px; background: var(--card); border: 1px solid var(--accent); border-radius: 12px; padding: 12px }
+    .pix-aviso.show { display: block }
+    .pix-aviso .pix-tit { font-weight: 700; color: var(--ink); margin: 0 0 6px; font-size: 13px }
     .drawer-rodape { padding: 14px 20px calc(16px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line) }
     .drawer-rodape .btn { width: 100%; border: 0; border-radius: 999px; background: var(--accent); color: var(--onaccent); font: 700 17px inherit; padding: 14px; cursor: pointer }
   </style>
@@ -239,10 +249,17 @@
       <h3>💳 Formas de Pagamento</h3>
       <ul class="lista">
         <li>📱 Pix</li>
-        <li>💳 Cartão de crédito</li>
-        <li>💳 Cartão de débito</li>
-        <li>💵 Dinheiro</li>
+        <li>💳 Cartão de crédito e débito (na entrega)</li>
+        <li>💵 Dinheiro (na entrega)</li>
       </ul>
+      <div class="pix-box">
+        <p class="pix-tit">📱 Chave Pix (e-mail)</p>
+        <div class="pix-row">
+          <span class="pix-key" id="pix-key">natanaelpimentel59@gmail.com</span>
+          <button class="pix-copy" id="pix-copy" type="button">Copiar</button>
+        </div>
+        <p class="pix-nome">Titular: Natanael da Silva Pimentel</p>
+      </div>
     </div>
 
     <div class="cta">
@@ -268,6 +285,22 @@
       <input id="c-tel" type="tel" placeholder="(94) 9____-____">
       <label for="c-end">Endereço de entrega</label>
       <input id="c-end" type="text" placeholder="Rua, número, bairro, referência">
+      <label for="c-pag">Forma de pagamento</label>
+      <select id="c-pag">
+        <option value="">Selecione...</option>
+        <option value="Pix">Pix</option>
+        <option value="Dinheiro (na entrega)">Dinheiro (na entrega)</option>
+        <option value="Cartão de crédito (na entrega)">Cartão de crédito (na entrega)</option>
+        <option value="Cartão de débito (na entrega)">Cartão de débito (na entrega)</option>
+      </select>
+      <div class="pix-aviso" id="pix-aviso">
+        <p class="pix-tit">📱 Pague no Pix e envie o comprovante:</p>
+        <div class="pix-row">
+          <span class="pix-key" id="pix-key2">natanaelpimentel59@gmail.com</span>
+          <button class="pix-copy" id="pix-copy2" type="button">Copiar</button>
+        </div>
+        <p class="pix-nome">Titular: Natanael da Silva Pimentel</p>
+      </div>
       <label for="c-obs">Observações (opcional)</label>
       <input id="c-obs" type="text" placeholder="Ex: sem cebola, ponto da batata...">
     </div>
@@ -278,6 +311,8 @@
 
   <script src="menu.js"></script>
   <script>
+    var PIX_CHAVE = "natanaelpimentel59@gmail.com";
+    var PIX_TITULAR = "Natanael da Silva Pimentel";
     var qty = {};
     function render(id, list) {
       var ul = document.getElementById(id);
@@ -350,15 +385,41 @@
     document.getElementById("fechar").onclick = fecharCarrinho;
     document.getElementById("overlay").onclick = fecharCarrinho;
 
+    // Copiar chave Pix
+    function copiarPix(btn) {
+      var txt = PIX_CHAVE;
+      function ok() { var orig = btn.textContent; btn.textContent = "Copiado!"; setTimeout(function () { btn.textContent = orig; }, 1800); }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).then(ok, function () { fallback(); });
+      } else { fallback(); }
+      function fallback() {
+        var t = document.createElement("textarea"); t.value = txt; document.body.appendChild(t); t.select();
+        try { document.execCommand("copy"); ok(); } catch (e) {}
+        document.body.removeChild(t);
+      }
+    }
+    document.getElementById("pix-copy").onclick = function () { copiarPix(this); };
+    document.getElementById("pix-copy2").onclick = function () { copiarPix(this); };
+
+    // Mostra o aviso de Pix no checkout quando escolhe Pix
+    document.getElementById("c-pag").onchange = function () {
+      var av = document.getElementById("pix-aviso");
+      if (this.value === "Pix") av.classList.add("show"); else av.classList.remove("show");
+    };
+
     function val(id) { var e = document.getElementById(id); return e && e.value ? e.value.trim() : ""; }
     document.getElementById("finalizar").onclick = function () {
       if (!totalItens()) return;
+      var pag = val("c-pag");
+      if (!pag) { alert("Escolha a forma de pagamento."); document.getElementById("c-pag").focus(); return; }
       var lines = []; for (var k in qty) if (qty[k]) lines.push("• " + qty[k] + "x " + k);
       var nome = val("c-nome"), tel = val("c-tel"), end = val("c-end"), obs = val("c-obs");
       var msg = "Olá! Gostaria de fazer um pedido:\n" + lines.join("\n");
       if (nome) msg += "\n\nNome: " + nome;
       if (tel) msg += "\nTelefone: " + tel;
       if (end) msg += "\nEndereço: " + end;
+      msg += "\nForma de pagamento: " + pag;
+      if (pag === "Pix") msg += "\nChave Pix: " + PIX_CHAVE + " (" + PIX_TITULAR + ")";
       if (obs) msg += "\nObservações: " + obs;
       window.open("https://wa.me/5594991354415?text=" + encodeURIComponent(msg), "_blank");
     };
