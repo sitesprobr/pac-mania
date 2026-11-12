@@ -38,7 +38,54 @@
 
     header {
       text-align: center;
-      padding: 32px 0 14px
+      padding: 28px 0 10px
+    }
+
+    /* Pac-Man e fantasminhas */
+    .pac-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 14px
+    }
+
+    .pacman {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: var(--accent);
+      clip-path: polygon(100% 25%, 44% 50%, 100% 75%, 100% 100%, 0 100%, 0 0, 100% 0);
+      animation: chomp .4s linear infinite
+    }
+
+    @keyframes chomp {
+      0%, 100% { clip-path: polygon(100% 25%, 44% 50%, 100% 75%, 100% 100%, 0 100%, 0 0, 100% 0) }
+      50% { clip-path: polygon(100% 50%, 44% 50%, 100% 50%, 100% 100%, 0 100%, 0 0, 100% 0) }
+    }
+
+    .ghost {
+      width: 34px; height: 38px; position: relative;
+      border-radius: 18px 18px 0 0
+    }
+    .ghost::after {
+      content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 8px;
+      background: inherit;
+      -webkit-mask: radial-gradient(circle at 25% 100%, transparent 50%, #000 51%) 0 0/33.4% 100%;
+      mask: radial-gradient(circle at 25% 100%, transparent 50%, #000 51%) 0 0/33.4% 100%
+    }
+    .ghost i {
+      position: absolute; top: 11px; width: 8px; height: 8px; background: #fff; border-radius: 50%
+    }
+    .ghost i.l { left: 7px }
+    .ghost i.r { right: 7px }
+    .ghost i::before { content: ""; position: absolute; top: 2px; left: 2px; width: 4px; height: 4px; background: #1a1a2e; border-radius: 50% }
+    .g1 { background: #e53935 }
+    .g2 { background: #ff6fae }
+    .g3 { background: #22d3ee }
+    .g4 { background: #ff9d33 }
+
+    .dots {
+      text-align: center; color: var(--accent); letter-spacing: 10px;
+      font-size: 10px; margin: 2px 0 0; opacity: .5
     }
 
     h1 {
@@ -163,8 +210,16 @@
 <body>
   <main>
     <header>
+      <div class="pac-row">
+        <div class="pacman"></div>
+        <div class="ghost g1"><i class="l"></i><i class="r"></i></div>
+        <div class="ghost g2"><i class="l"></i><i class="r"></i></div>
+        <div class="ghost g3"><i class="l"></i><i class="r"></i></div>
+        <div class="ghost g4"><i class="l"></i><i class="r"></i></div>
+      </div>
       <h1>PAC MANIA</h1>
-      <p class="tag">Os melhores e mais gostosos salgadinhos da cidade! 🟡</p>
+      <p class="tag">Os melhores e mais gostosos salgadinhos da cidade!</p>
+      <p class="dots">• • • • • • • • • • • • • • •</p>
     </header>
 
     <section>
